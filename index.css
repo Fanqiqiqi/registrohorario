@@ -1,0 +1,136 @@
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+.container {
+    width: 100%;
+    min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h1 {
+    text-align: center;
+    color: #333;
+}
+.employee-select {
+    margin-bottom: 20px;
+    text-align: left;
+    padding-left: 12px;
+}
+select, button, input[type="date"] {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #218838;
+}
+button.check-out {
+    background-color: #dc3545;
+}
+button.check-out:hover {
+    background-color: #c82333;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+th {
+    background-color: #007bff;
+    color: white;
+}
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* 筛选信息框样式 */
+.filter-sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px; /* 初始隐藏在右侧 */
+    width: 300px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+}
+.filter-sidebar.active {
+    right: 0; /* 显示时滑入 */
+}
+.filter-sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.filter-sidebar label {
+    display: block;
+    margin: 10px 0 5px;
+}
+.filter-sidebar input, .filter-sidebar select {
+    width: 100%;
+    box-sizing: border-box;
+}
+.filter-buttons {
+    margin-top: 20px;
+}
+.filter-buttons button {
+    width: 100%;
+    margin: 5px 0;
+}
+.filter-buttons button:nth-child(2) {
+    background-color: #6c757d; /* 重置按钮颜色 */
+}
+.filter-buttons button:nth-child(2):hover {
+    background-color: #5a6268;
+}
+.filter-buttons button:nth-child(3) {
+    background-color: #ffc107; /* 关闭按钮颜色 */
+}
+.filter-buttons button:nth-child(3):hover {
+    background-color: #e0a800;
+}
+
+@media (max-width: 600px) {
+    select, button, input[type="date"] {
+        width: 100%;
+        margin: 5px 0;
+    }
+    .filter-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+}
+
+/* Print-specific styles */
+@media print {
+    .container, .filter-sidebar, .employee-select {
+        display: none !important;
+    }
+    body {
+        background: none;
+    }
+}

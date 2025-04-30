@@ -1,0 +1,374 @@
+let records = JSON.parse(localStorage.getItem('timeRecords')) || [];
+
+function populateEmployeeDropdown() {
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    const select = document.getElementById('employeeSelect');
+    const filterSelect = document.getElementById('filterEmployeeSelect');
+    select.innerHTML = '<option value="">Seleccionar Empleado</option>';
+    filterSelect.innerHTML = '<option value="">Todos los Empleados</option>';
+    employees.forEach(emp => {
+        const fullName = `${emp.name} ${emp.firstSurname}${emp.secondSurname ? ' ' + emp.secondSurname : ''}`;
+        const option = document.createElement('option');
+        option.value = fullName;
+        option.text = fullName;
+        select.appendChild(option);
+        filterSelect.appendChild(option.cloneNode(true));
+    });
+}
+
+// 验证 DD/MM/YYYY 格式的日期
+function isValidDateFormat(dateStr) {
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    if (!regex.test(dateStr)) return false;
+    const [, day, month, year] = dateStr.match(regex);
+    const date = new Date(`${year}-${month}-${day}`);
+    return date.getDate() == day && date.getMonth() + 1 == month && date.getFullYear() == year;
+}
+
+// 将 DD/MM/YYYY 转换为 YYYY-MM-DD
+function convertToISODate(dateStr) {
+    if (!isValidDateFormat(dateStr)) return null;
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+// 将 YYYY-MM-DD 转换为 DD/MM/YYYY
+function formatToDDMMYYYY(dateStr) {
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+function checkIn() {
+    const employee = document.getElementById('employeeSelect').value;
+    const dateInput = document.getElementById('dateInput').value;
+    const dateStr = formatToDDMMYYYY(dateInput); // Convert YYYY-MM-DD to DD/MM/YYYY for validation
+    if (!employee) {
+        alert('¡Por favor selecciona un empleado!');
+        return;
+    }
+    if (!dateInput || !isValidDateFormat(dateStr)) {
+        alert('¡Por favor introduce una fecha válida en formato DD/MM/YYYY!');
+        return;
+    }
+
+    const now = new Date();
+    const record = {
+        type: 'checkIn',
+        employee,
+        date: dateInput, // Store as YYYY-MM-DD
+        time: now.toLocaleString('es-ES'),
+        timestamp: now.toISOString(),
+        recordId: Date.now()
+    };
+
+    records.push(record);
+    saveAndRender();
+}
+
+function checkOut() {
+    const employee = document.getElementById('employeeSelect').value;
+    const dateInput = document.getElementById('dateInput').value;
+    const dateStr = formatToDDMMYYYY(dateInput); // Convert YYYY-MM-DD to DD/MM/YYYY for validation
+    if (!employee) {
+        alert('¡Por favor selecciona un empleado!');
+        return;
+    }
+    if (!dateInput || !isValidDateFormat(dateStr)) {
+        alert('¡Por favor introduce una fecha válida en formato DD/MM/YYYY!');
+        return;
+    }
+
+    const lastCheckIn = records
+        .filter(r => r.type === 'checkIn' && r.employee === employee && r.date === dateInput && !r.hasCheckOut)
+        .pop();
+
+    if (!lastCheckIn) {
+        alert('¡Este empleado no tiene un registro de entrada pendiente para esta fecha!');
+        return;
+    }
+
+    const now = new Date();
+    const checkOutRecord = {
+        type: 'checkOut',
+        employee,
+        date: dateInput,
+        time: now.toLocaleString('es-ES'),
+        timestamp: now.toISOString(),
+        duration: calculateDuration(lastCheckIn.timestamp, now.toISOString()),
+        recordId: lastCheckIn.recordId
+    };
+
+    lastCheckIn.hasCheckOut = true;
+    records.push(checkOutRecord);
+    saveAndRender();
+}
+
+function calculateDuration(checkInTimestamp, checkOutTimestamp) {
+    const start = new Date(checkInTimestamp);
+    const end = new Date(checkOutTimestamp);
+    const diffMs = end - start;
+    if (isNaN(diffMs)) {
+        return 'Error en cálculo';
+    }
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+    return `${hours} horas ${minutes} minutos ${seconds} segundos`;
+}
+
+function saveAndRender() {
+    localStorage.setItem('timeRecords', JSON.stringify(records));
+    renderTable();
+}
+
+function renderTable(filteredRecords = records) {
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    const groupedRecords = {};
+
+    // Group records by recordId
+    filteredRecords.forEach(record => {
+        const key = `${record.employee}-${record.date}-${record.recordId}`;
+        if (!groupedRecords[key]) {
+            groupedRecords[key] = [];
+        }
+        groupedRecords[key].push(record);
+    });
+
+    // Render one row per recordId
+    Object.values(groupedRecords).forEach(group => {
+        const checkIn = group.find(r => r.type === 'checkIn');
+        const checkOut = group.find(r => r.type === 'checkOut');
+        if (checkIn) {
+            const row = document.createElement('tr');
+            const formattedDate = formatToDDMMYYYY(checkIn.date); // 显示为 DD/MM/YYYY
+            const checkInTime = checkIn.time.split(', ')[1] || checkIn.time;
+            const checkOutTime = checkOut ? (checkOut.time.split(', ')[1] || checkOut.time) : '-';
+            const duration = checkOut ? checkOut.duration : '-';
+            row.innerHTML = `
+                <td>${checkIn.employee}</td>
+                <td>${formattedDate}</td>
+                <td>${checkInTime}</td>
+                <td>${checkOutTime}</td>
+                <td>${duration}</td>
+            `;
+            tableBody.appendChild(row);
+        }
+    });
+}
+
+function toggleFilterSidebar() {
+    const sidebar = document.getElementById('filterSidebar');
+    sidebar.classList.toggle('active');
+}
+
+function applyFilter() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const employee = document.getElementById('filterEmployeeSelect').value;
+
+    let filteredRecords = records;
+
+    // Filter by date range
+    if (startDate || endDate) {
+        const startDateStr = startDate ? formatToDDMMYYYY(startDate) : '';
+        const endDateStr = endDate ? formatToDDMMYYYY(endDate) : '';
+        if (startDate && !isValidDateFormat(startDateStr)) {
+            alert('¡Por favor introduce una fecha inicial válida en formato DD/MM/YYYY!');
+            return;
+        }
+        if (endDate && !isValidDateFormat(endDateStr)) {
+            alert('¡Por favor introduce una fecha final válida en formato DD/MM/YYYY!');
+            return;
+        }
+
+        filteredRecords = filteredRecords.filter(record => {
+            const recordDate = new Date(record.date);
+            const start = startDate ? new Date(startDate) : new Date('1970-01-01');
+            const end = endDate ? new Date(endDate) : new Date('9999-12-31');
+            return recordDate >= start && recordDate <= end;
+        });
+    }
+
+    // Filter by employee
+    if (employee) {
+        filteredRecords = filteredRecords.filter(record => record.employee === employee);
+    }
+
+    renderTable(filteredRecords);
+}
+
+function resetFilter() {
+    // Set default date to today in YYYY-MM-DD format
+    const today = new Date();
+    const defaultDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    document.getElementById('startDate').value = defaultDate;
+    document.getElementById('endDate').value = defaultDate;
+    document.getElementById('filterEmployeeSelect').value = '';
+    renderTable();
+}
+
+function printRecords() {
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+    let htmlContent = `
+        <html>
+        <head>
+            <title>Informe de Registro de Tiempo</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #333;
+                }
+                .print-container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 24px;
+                    color: #2c3e50;
+                }
+                .employee-details {
+                    margin-bottom: 20px;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                }
+                .employee-details p {
+                    margin: 5px 0;
+                    font-size: 16px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    padding: 12px;
+                    text-align: left;
+                    border: 1px solid #ddd;
+                }
+                th {
+                    background-color: #007bff;
+                    color: white;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                    }
+                    .print-container {
+                        width: 100%;
+                    }
+                    table {
+                        page-break-inside: auto;
+                    }
+                    tr {
+                        page-break-inside: avoid;
+                        page-break-after: auto;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-container">
+                <div class="header">
+                    <h1>Informe de Registro de Tiempo</h1>
+                    <p>Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}</p>
+                </div>
+    `;
+
+    // Group records by employee
+    const groupedByEmployee = {};
+    Array.from(rows).forEach(row => {
+        const cells = row.getElementsByTagName('td');
+        const employeeName = cells[0].textContent;
+        if (!groupedByEmployee[employeeName]) {
+            groupedByEmployee[employeeName] = [];
+        }
+        groupedByEmployee[employeeName].push({
+            date: cells[1].textContent,
+            checkIn: cells[2].textContent,
+            checkOut: cells[3].textContent,
+            duration: cells[4].textContent
+        });
+    });
+
+    // Generate HTML for each employee
+    for (const [employeeName, records] of Object.entries(groupedByEmployee)) {
+        const employee = employees.find(emp => {
+            const fullName = `${emp.name} ${emp.firstSurname}${emp.secondSurname ? ' ' + emp.secondSurname : ''}`;
+            return fullName === employeeName;
+        });
+
+        htmlContent += `
+            <div class="employee-details">
+                <p><strong>Nombre:</strong> ${employeeName}</p>
+                <p><strong>Número de Identificación:</strong> ${employee ? employee.id : '-'}</p>
+                <p><strong>Número de Seguro:</strong> ${employee ? employee.insurance : '-'}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora de Entrada</th>
+                        <th>Hora de Salida</th>
+                        <th>Duración del Trabajo</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        records.forEach(record => {
+            htmlContent += `
+                <tr>
+                    <td>${record.date}</td>
+                    <td>${record.checkIn}</td>
+                    <td>${record.checkOut}</td>
+                    <td>${record.duration}</td>
+                </tr>
+            `;
+        });
+
+        htmlContent += `
+                </tbody>
+            </table>
+            <div style="page-break-after: always;"></div>
+        `;
+    }
+
+    htmlContent += `
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Open a new window and print
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+}
+
+// Set default date to today in YYYY-MM-DD format for all date inputs
+const today = new Date();
+const defaultDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+document.getElementById('dateInput').value = defaultDate;
+document.getElementById('startDate').value = defaultDate;
+document.getElementById('endDate').value = defaultDate;
+
+// Initialize rendering and dropdown
+renderTable();
+populateEmployeeDropdown();
