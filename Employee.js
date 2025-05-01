@@ -3,6 +3,8 @@ let employees = JSON.parse(localStorage.getItem('employees')) || [];
 function openModal() {
     document.getElementById('modal').style.display = 'flex';
     document.getElementById('employeeForm').reset();
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('noImageText').style.display = 'block';
 }
 
 function closeModal() {
@@ -18,6 +20,7 @@ function addEmployee() {
     const birthDay = parseInt(document.getElementById('birthDay').value);
     const birthMonth = parseInt(document.getElementById('birthMonth').value);
     const birthYear = parseInt(document.getElementById('birthYear').value);
+    const imageFile = document.getElementById('employeeImage').files[0];
 
     if (!name) {
         alert('¡Por favor ingresa el nombre!');
@@ -52,11 +55,38 @@ function addEmployee() {
         return;
     }
 
-    const employee = { name, firstSurname, secondSurname, id, insurance, birthDay, birthMonth, birthYear };
-    employees.push(employee);
-    saveAndRender();
-    alert('¡Empleado guardado exitosamente!');
-    closeModal();
+    const employee = { 
+        name, 
+        firstSurname, 
+        secondSurname, 
+        id, 
+        insurance, 
+        birthDay, 
+        birthMonth, 
+        birthYear 
+    };
+
+    // Handle image as Base64
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            employee.imageBase64 = e.target.result;
+            employees.push(employee);
+            saveAndRender();
+            alert('¡Empleado guardado exitosamente!');
+            closeModal();
+        };
+        reader.onerror = function(e) {
+            alert('Error al leer la imagen: ' + e.message);
+        };
+        reader.readAsDataURL(imageFile);
+    } else {
+        employee.imageBase64 = '';
+        employees.push(employee);
+        saveAndRender();
+        alert('¡Empleado guardado exitosamente!');
+        closeModal();
+    }
 }
 
 function removeEmployee(id) {
@@ -81,6 +111,7 @@ function renderTable() {
         const row = document.createElement('tr');
         const birthDate = `${employee.birthDay.toString().padStart(2, '0')}/${employee.birthMonth.toString().padStart(2, '0')}/${employee.birthYear}`;
         row.innerHTML = `
+            <td><img src="${employee.imageBase64 || 'https://via.placeholder.com/50'}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
             <td>${employee.name}</td>
             <td>${employee.firstSurname}</td>
             <td>${employee.secondSurname || '-'}</td>
@@ -93,5 +124,26 @@ function renderTable() {
     });
 }
 
-// Inicializar renderizado de la tabla
+// Preview image when selected
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('employeeImage')?.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const preview = document.getElementById('imagePreview');
+        const noImageText = document.getElementById('noImageText');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                noImageText.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+            noImageText.style.display = 'block';
+        }
+    });
+});
+
+// Initialize rendering of the table
 renderTable();

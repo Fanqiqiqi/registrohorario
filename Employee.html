@@ -16,6 +16,7 @@
         <table id="employeeTable">
             <thead>
                 <tr>
+                    <th>Foto</th>
                     <th>Nombre</th>
                     <th>Primer Apellido</th>
                     <th>Segundo Apellido</th>
@@ -27,30 +28,39 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-  <script src="Employee.js"></script>
-</div>
+    </div>
     <div id="modal" class="modal">
         <div class="modal-content">
             <h2>Agregar Nuevo Empleado</h2>
-            <form id="employeeForm">
-                <input type="text" id="employeeName" placeholder="Nombre" required>
-                <input type="text" id="firstSurname" placeholder="Primer Apellido" required>
-                <input type="text" id="secondSurname" placeholder="Segundo Apellido">
-                <input type="text" id="employeeId" placeholder="Número de Identificación" required>
-                <input type="text" id="insurance" placeholder="Número de Seguro" required>
-                <div class="birth-date">
-                    <input type="number" id="birthDay" placeholder="Día" min="1" max="31" required>
-                    <input type="number" id="birthMonth" placeholder="Mes" min="1" max="12" required>
-                    <input type="number" id="birthYear" placeholder="Año" min="1900" max="2025" required>
+            <div class="modal-grid">
+                <div class="form-fields">
+                    <form id="employeeForm">
+                        <input type="text" id="employeeName" placeholder="Nombre" required>
+                        <input type="text" id="firstSurname" placeholder="Primer Apellido" required>
+                        <input type="text" id="secondSurname" placeholder="Segundo Apellido">
+                        <input type="text" id="employeeId" placeholder="Número de Identificación" required>
+                        <input type="text" id="insurance" placeholder="Número de Seguro" required>
+                        <div class="birth-date">
+                            <input type="number" id="birthDay" placeholder="Día" min="1" max="31" required>
+                            <input type="number" id="birthMonth" placeholder="Mes" min="1" max="12" required>
+                            <input type="number" id="birthYear" placeholder="Año" min="1900" max="2025" required>
+                        </div>
+                        <input type="file" id="employeeImage" accept="image/*">
+                        <div class="modal-buttons">
+                            <button type="button" onclick="closeModal()">Cancelar</button>
+                            <button type="submit" onclick="addEmployee()">Guardar</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-buttons">
-                    <button type="button" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" onclick="addEmployee()">Guardar</button>
+                <div class="image-preview">
+                    <img id="imagePreview" src="" alt="Vista previa de la imagen" style="display: none;">
+                    <p id="noImageText">No se ha seleccionado ninguna imagen</p>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     <script src="Employee.js"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9387ee95ee65453b',t:'MTc0NjAyNTQ3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9387ee95ee65453b',t:'MTc0NjAyNTQ3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9390f8e82db46735',t:'MTc0NjEyMDI2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

@@ -257,9 +257,7 @@ function downloadPDF() {
         const groupedByEmployee = {};
         currentFilteredRecords.forEach(record => {
             const key = `${record.employee}-${record.date}-${record.recordId}`;
-            if (!groupedByEmployee[record.employee]) {
-                groupedByEmployee[record.employee] = [];
-            }
+            groupedByEmployee[record.employee] = groupedByEmployee[record.employee] || [];
             groupedByEmployee[record.employee].push(record);
         });
 
@@ -310,7 +308,7 @@ function downloadPDF() {
                     head: [headers],
                     body: data,
                     startY: yOffset,
-                    Khoa: { fontSize: 10 },
+                    styles: { fontSize: 10 },
                     headStyles: { fillColor: [0, 123, 255] },
                     margin: { top: 10 }
                 });
@@ -489,6 +487,41 @@ function printRecords() {
     printWindow.close();
 }
 
+function displayEmployeePhoto(employeeName) {
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    const photoContainer = document.getElementById('employeePhotoContainer');
+    const photoImg = document.getElementById('employeePhoto');
+    const noPhotoText = document.getElementById('noPhotoText');
+
+    if (!employeeName) {
+        // Hide photo and show "no employee selected" text
+        photoContainer.classList.remove('active');
+        photoImg.style.display = 'none';
+        noPhotoText.style.display = 'block';
+        return;
+    }
+
+    // Find the employee by full name
+    const employee = employees.find(emp => {
+        const fullName = `${emp.name} ${emp.firstSurname}${emp.secondSurname ? ' ' + emp.secondSurname : ''}`;
+        return fullName === employeeName;
+    });
+
+    if (employee && employee.imageBase64) {
+        // Show employee's photo
+        photoImg.src = employee.imageBase64;
+        photoImg.style.display = 'block';
+        noPhotoText.style.display = 'none';
+        photoContainer.classList.add('active');
+    } else {
+        // Show placeholder if no photo exists
+        photoImg.src = 'https://via.placeholder.com/120';
+        photoImg.style.display = 'block';
+        noPhotoText.style.display = 'none';
+        photoContainer.classList.add('active');
+    }
+}
+
 // Set default date to today in YYYY-MM-DD format for all date inputs
 const today = new Date();
 const defaultDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
@@ -496,6 +529,13 @@ document.getElementById('dateInput').value = defaultDate;
 document.getElementById('startDate').value = defaultDate;
 document.getElementById('endDate').value = defaultDate;
 
-// Initialize rendering and dropdown
+// Initialize rendering, dropdown, and photo display
 renderTable();
 populateEmployeeDropdown();
+document.getElementById('employeeSelect').addEventListener('change', (event) => {
+    const selectedEmployee = event.target.value;
+    displayEmployeePhoto(selectedEmployee);
+});
+document.addEventListener('DOMContentLoaded', () => {
+    displayEmployeePhoto(''); // Initialize with no employee selected
+});
