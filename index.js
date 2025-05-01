@@ -52,6 +52,19 @@ function checkIn() {
         return;
     }
 
+    // 检查是否有未完成（没有 checkOut）的 checkIn 记录
+    const hasPendingCheckIn = records.some(
+        r => r.type === 'checkIn' && 
+             r.employee === employee && 
+             r.date === dateInput && 
+             !r.hasCheckOut
+    );
+
+    if (hasPendingCheckIn) {
+        alert('¡Este empleado ya tiene un registro de entrada pendiente para esta fecha! Por favor registra la salida primero.');
+        return;
+    }
+
     const now = new Date();
     const record = {
         type: 'checkIn',
