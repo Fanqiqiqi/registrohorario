@@ -113,6 +113,12 @@ tr:hover {
 .filter-buttons button:nth-child(3):hover {
     background-color: #e0a800;
 }
+button.download-pdf {
+    background-color: #17a2b8;
+}
+button.download-pdf:hover {
+    background-color: #138496;
+}
 
 @media (max-width: 600px) {
     select, button, input[type="date"] {

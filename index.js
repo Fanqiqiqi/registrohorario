@@ -1,4 +1,5 @@
 let records = JSON.parse(localStorage.getItem('timeRecords')) || [];
+let currentFilteredRecords = records; // Track filtered records
 
 function populateEmployeeDropdown() {
     const employees = JSON.parse(localStorage.getItem('employees')) || [];
@@ -41,7 +42,7 @@ function formatToDDMMYYYY(dateStr) {
 function checkIn() {
     const employee = document.getElementById('employeeSelect').value;
     const dateInput = document.getElementById('dateInput').value;
-    const dateStr = formatToDDMMYYYY(dateInput); // Convert YYYY-MM-DD to DD/MM/YYYY for validation
+    const dateStr = formatToDDMMYYYY(dateInput);
     if (!employee) {
         alert('¡Por favor selecciona un empleado!');
         return;
@@ -55,7 +56,7 @@ function checkIn() {
     const record = {
         type: 'checkIn',
         employee,
-        date: dateInput, // Store as YYYY-MM-DD
+        date: dateInput,
         time: now.toLocaleString('es-ES'),
         timestamp: now.toISOString(),
         recordId: Date.now()
@@ -68,7 +69,7 @@ function checkIn() {
 function checkOut() {
     const employee = document.getElementById('employeeSelect').value;
     const dateInput = document.getElementById('dateInput').value;
-    const dateStr = formatToDDMMYYYY(dateInput); // Convert YYYY-MM-DD to DD/MM/YYYY for validation
+    const dateStr = formatToDDMMYYYY(dateInput);
     if (!employee) {
         alert('¡Por favor selecciona un empleado!');
         return;
@@ -122,11 +123,11 @@ function saveAndRender() {
 }
 
 function renderTable(filteredRecords = records) {
+    currentFilteredRecords = filteredRecords; // Update filtered records
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
     const groupedRecords = {};
 
-    // Group records by recordId
     filteredRecords.forEach(record => {
         const key = `${record.employee}-${record.date}-${record.recordId}`;
         if (!groupedRecords[key]) {
@@ -135,13 +136,12 @@ function renderTable(filteredRecords = records) {
         groupedRecords[key].push(record);
     });
 
-    // Render one row per recordId
     Object.values(groupedRecords).forEach(group => {
         const checkIn = group.find(r => r.type === 'checkIn');
         const checkOut = group.find(r => r.type === 'checkOut');
         if (checkIn) {
             const row = document.createElement('tr');
-            const formattedDate = formatToDDMMYYYY(checkIn.date); // 显示为 DD/MM/YYYY
+            const formattedDate = formatToDDMMYYYY(checkIn.date);
             const checkInTime = checkIn.time.split(', ')[1] || checkIn.time;
             const checkOutTime = checkOut ? (checkOut.time.split(', ')[1] || checkOut.time) : '-';
             const duration = checkOut ? checkOut.duration : '-';
@@ -169,7 +169,6 @@ function applyFilter() {
 
     let filteredRecords = records;
 
-    // Filter by date range
     if (startDate || endDate) {
         const startDateStr = startDate ? formatToDDMMYYYY(startDate) : '';
         const endDateStr = endDate ? formatToDDMMYYYY(endDate) : '';
@@ -190,7 +189,6 @@ function applyFilter() {
         });
     }
 
-    // Filter by employee
     if (employee) {
         filteredRecords = filteredRecords.filter(record => record.employee === employee);
     }
@@ -199,13 +197,119 @@ function applyFilter() {
 }
 
 function resetFilter() {
-    // Set default date to today in YYYY-MM-DD format
     const today = new Date();
     const defaultDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
     document.getElementById('startDate').value = defaultDate;
     document.getElementById('endDate').value = defaultDate;
     document.getElementById('filterEmployeeSelect').value = '';
     renderTable();
+}
+
+function downloadPDF() {
+    console.log('downloadPDF function called'); // Debug log
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        console.error('jsPDF is not loaded');
+        alert('Error: No se pudo cargar la biblioteca para generar PDF. Por favor, intenta de nuevo.');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const employees = JSON.parse(localStorage.getItem('employees')) || [];
+        let yOffset = 20;
+
+        // Header
+        doc.setFontSize(16);
+        doc.text('Informe de Registro de Tiempo', 105, yOffset, { align: 'center' });
+        yOffset += 10;
+        doc.setFontSize(12);
+        doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}`, 105, yOffset, { align: 'center' });
+        yOffset += 20;
+
+        // Group records by employee
+        const groupedByEmployee = {};
+        currentFilteredRecords.forEach(record => {
+            const key = `${record.employee}-${record.date}-${record.recordId}`;
+            if (!groupedByEmployee[record.employee]) {
+                groupedByEmployee[record.employee] = [];
+            }
+            groupedByEmployee[record.employee].push(record);
+        });
+
+        // Generate PDF content for each employee
+        for (const [employeeName, records] of Object.entries(groupedByEmployee)) {
+            const employee = employees.find(emp => {
+                const fullName = `${emp.name} ${emp.firstSurname}${emp.secondSurname ? ' ' + emp.secondSurname : ''}`;
+                return fullName === employeeName;
+            });
+
+            // Employee Details
+            doc.setFontSize(14);
+            doc.text(`Nombre: ${employeeName}`, 10, yOffset);
+            yOffset += 7;
+            doc.setFontSize(12);
+            doc.text(`Número de Identificación: ${employee ? employee.id : '-'}`, 10, yOffset);
+            yOffset += 7;
+            doc.text(`Número de Seguro: ${employee ? employee.insurance : '-'}`, 10, yOffset);
+            yOffset += 10;
+
+            // Table Header
+            const headers = ['Fecha', 'Hora de Entrada', 'Hora de Salida', 'Duración'];
+            const data = [];
+            const groupedRecords = {};
+            records.forEach(record => {
+                const key = `${record.employee}-${record.date}-${record.recordId}`;
+                if (!groupedRecords[key]) {
+                    groupedRecords[key] = [];
+                }
+                groupedRecords[key].push(record);
+            });
+
+            Object.values(groupedRecords).forEach(group => {
+                const checkIn = group.find(r => r.type === 'checkIn');
+                const checkOut = group.find(r => r.type === 'checkOut');
+                if (checkIn) {
+                    const formattedDate = formatToDDMMYYYY(checkIn.date);
+                    const checkInTime = checkIn.time.split(', ')[1] || checkIn.time;
+                    const checkOutTime = checkOut ? (checkOut.time.split(', ')[1] || checkOut.time) : '-';
+                    const duration = checkOut ? checkOut.duration : '-';
+                    data.push([formattedDate, checkInTime, checkOutTime, duration]);
+                }
+            });
+
+            // Render Table
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: yOffset,
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [0, 123, 255] },
+                    margin: { top: 10 }
+                });
+                yOffset = doc.lastAutoTable.finalY + 20;
+            } else {
+                console.error('autoTable plugin is not loaded');
+                doc.text('Error: No se pudo generar la tabla.', 10, yOffset);
+                yOffset += 10;
+            }
+
+            // Add page break if not the last employee
+            if (Object.keys(groupedByEmployee).pop() !== employeeName) {
+                doc.addPage();
+                yOffset = 20;
+            }
+        }
+
+        // Save PDF
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        doc.save(`TimeRecords_${timestamp}.pdf`);
+        console.log('PDF generated and saved');
+    } catch (error) {
+        console.error('Error in downloadPDF:', error);
+        alert('Error al generar el PDF: ' + error.message);
+    }
 }
 
 function printRecords() {
@@ -288,7 +392,6 @@ function printRecords() {
                 </div>
     `;
 
-    // Group records by employee
     const groupedByEmployee = {};
     Array.from(rows).forEach(row => {
         const cells = row.getElementsByTagName('td');
@@ -304,7 +407,6 @@ function printRecords() {
         });
     });
 
-    // Generate HTML for each employee
     for (const [employeeName, records] of Object.entries(groupedByEmployee)) {
         const employee = employees.find(emp => {
             const fullName = `${emp.name} ${emp.firstSurname}${emp.secondSurname ? ' ' + emp.secondSurname : ''}`;
@@ -353,7 +455,6 @@ function printRecords() {
         </html>
     `;
 
-    // Open a new window and print
     const printWindow = window.open('', '_blank');
     printWindow.document.write(htmlContent);
     printWindow.document.close();
