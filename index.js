@@ -92,12 +92,25 @@ function checkOut() {
         return;
     }
 
+    // 检查是否存在任何 checkIn 记录
+    const hasCheckIn = records.some(
+        r => r.type === 'checkIn' && 
+             r.employee === employee && 
+             r.date === dateInput
+    );
+
+    if (!hasCheckIn) {
+        alert('¡Este empleado no tiene un registro de entrada para esta fecha! Por favor registra la entrada primero.');
+        return;
+    }
+
+    // 检查是否存在未完成的 checkIn 记录
     const lastCheckIn = records
         .filter(r => r.type === 'checkIn' && r.employee === employee && r.date === dateInput && !r.hasCheckOut)
         .pop();
 
     if (!lastCheckIn) {
-        alert('¡Este empleado no tiene un registro de entrada pendiente para esta fecha!');
+        alert('¡Este empleado no tiene un registro de entrada pendiente para esta fecha! Todas las entradas ya tienen salida registrada.');
         return;
     }
 
@@ -297,7 +310,7 @@ function downloadPDF() {
                     head: [headers],
                     body: data,
                     startY: yOffset,
-                    styles: { fontSize: 10 },
+                    Khoa: { fontSize: 10 },
                     headStyles: { fillColor: [0, 123, 255] },
                     margin: { top: 10 }
                 });
