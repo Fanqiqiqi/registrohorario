@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vacaciones</title>
+    <link rel="stylesheet" href="Vacation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="dropdown">
+            <button class="dropdown-btn"><i class="fas fa-bars"></i> Menú</button>
+            <div class="dropdown-content">
+                <a href="Vacation.html"><i class="fas fa-calendar-alt"></i> Vacaciones</a>
+                <a href="index.html"><i class="fas fa-clock"></i> Horario</a>
+                <a href="Employee.html"><i class="fas fa-users"></i> Empleados</a>
+            </div>
+        </div>
+        <h1>Registro de Vacaciones</h1>
+        <div class="vacation-form">
+            <button onclick="openModal('add')">Registrar Vacación</button>
+        </div>
+        <table id="vacationTable">
+            <thead>
+                <tr>
+                    <th>Nombre del Empleado</th>
+                    <th>Tipo de Permiso</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Notas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Registrar Nueva Vacación</h2>
+            <form id="vacationForm">
+                <select id="employeeSelect" required>
+                    <option value="">Seleccionar Empleado</option>
+                </select>
+                <select id="leaveType" required>
+                    <option value="">Seleccionar Tipo de Permiso</option>
+                    <option value="Vacaciones">Vacaciones</option>
+                    <option value="Enfermedad">Enfermedad</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Otros">Otros</option>
+                </select>
+                <input type="date" id="startDate" required>
+                <input type="date" id="endDate" required>
+                <textarea id="notes" placeholder="Notas (Opcional)" rows="4"></textarea>
+                <select id="status" required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Aprobado">Aprobado</option>
+                    <option value="Rechazado">Rechazado</option>
+                </select>
+                <div class="modal-buttons">
+                    <button type="button" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" id="saveButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="filterSidebar" class="filter-sidebar">
+        <h2>Filtro de Vacaciones</h2>
+        <label>Nombre del Empleado:</label>
+        <select id="filterEmployeeSelect">
+            <option value="">Todos los Empleados</option>
+        </select>
+        <label>Tipo de Permiso:</label>
+        <select id="filterLeaveType">
+            <option value="">Todos los Tipos</option>
+            <option value="Vacaciones">Vacaciones</option>
+            <option value="Enfermedad">Enfermedad</option>
+            <option value="Personal">Personal</option>
+            <option value="Otros">Otros</option>
+        </select>
+        <label>Desde:</label>
+        <input type="date" id="filterStartDate">
+        <label>Hasta:</label>
+        <input type="date" id="filterEndDate">
+        <div class="filter-buttons">
+            <button onclick="applyFilter()">Aplicar Filtro</button>
+            <button onclick="resetFilter()">Restablecer</button>
+            <button onclick="toggleFilterSidebar()">Cerrar</button>
+        </div>
+    </div>
+    <script src="Vacation.js"></script>
+    <script>
+        // Toggle dropdown menu
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownBtn = document.querySelector('.dropdown-btn');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            
+            dropdownBtn.addEventListener('click', () => {
+                dropdownContent.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!dropdownBtn.contains(event.target) && !dropdownContent.contains(event.target)) {
+                    dropdownContent.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

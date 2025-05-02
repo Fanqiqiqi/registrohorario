@@ -9,10 +9,17 @@
 </head>
 <body>
     <div class="container">
+        <div class="dropdown">
+            <button class="dropdown-btn"><i class="fas fa-bars"></i> Menú</button>
+            <div class="dropdown-content">
+                <a href="Vacation.html"><i class="fas fa-calendar-alt"></i> Vacaciones</a>
+                <a href="index.html"><i class="fas fa-clock"></i> Horario</a>
+                <a href="Employee.html"><i class="fas fa-users"></i> Empleados</a>
+            </div>
+        </div>
         <h1>Gestión de Empleados</h1>
         <div class="employee-form">
             <button onclick="openModal('add')">Agregar Empleado</button>
-            <a href="index.html"><button>Registro</button></a>
         </div>
         <table id="employeeTable">
             <thead>
@@ -61,5 +68,23 @@
         </div>
     </div>
     <script src="Employee.js"></script>
+    <script>
+        // Toggle dropdown menu
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownBtn = document.querySelector('.dropdown-btn');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            
+            dropdownBtn.addEventListener('click', () => {
+                dropdownContent.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!dropdownBtn.contains(event.target) && !dropdownContent.contains(event.target)) {
+                    dropdownContent.classList.remove('show');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

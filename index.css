@@ -5,6 +5,7 @@ html, body {
     background-color: #f4f4f4;
     font-family: Arial, sans-serif;
 }
+
 .container {
     width: 100%;
     min-height: 100vh;
@@ -15,16 +16,37 @@ html, body {
     box-sizing: border-box;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
 }
+
 h1 {
     text-align: center;
     color: #333;
 }
+
 .employee-select {
     margin-bottom: 20px;
-    text-align: left;
-    padding-left: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    flex-wrap: wrap;
 }
+
+.input-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 select, button, input[type="date"] {
     padding: 10px;
     margin: 5px;
@@ -32,40 +54,126 @@ select, button, input[type="date"] {
     border: 1px solid #ccc;
     font-size: 16px;
 }
+
 button {
     background-color: #28a745;
     color: white;
     border: none;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
 button:hover {
     background-color: #218838;
+    opacity: 0.9;
+    transform: translateY(-2px);
 }
+
 button.check-out {
     background-color: #dc3545;
 }
+
 button.check-out:hover {
     background-color: #c82333;
 }
+
+button.download-pdf {
+    background-color: #17a2b8;
+}
+
+button.download-pdf:hover {
+    background-color: #138496;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-dropdown {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+}
+
+.dropdown-btn:hover {
+    background-color: #218838;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-content a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f5f5f5;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
+
 th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
+
 th {
     background-color: #007bff;
     color: white;
 }
+
 tr:hover {
     background-color: #f5f5f5;
 }
 
-/* Employee photo container */
 .employee-photo-container {
     position: fixed;
     bottom: 20px;
@@ -86,13 +194,11 @@ tr:hover {
     transform: translateY(20px);
 }
 
-/* Show photo container when active */
 .employee-photo-container.active {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Employee photo */
 .employee-photo-container img {
     width: 120px;
     height: 120px;
@@ -102,7 +208,6 @@ tr:hover {
     margin-bottom: 10px;
 }
 
-/* No photo text */
 .employee-photo-container p {
     font-size: 14px;
     color: #6c757d;
@@ -110,11 +215,10 @@ tr:hover {
     margin: 0;
 }
 
-/* 筛选信息框样式 */
 .filter-sidebar {
     position: fixed;
     top: 0;
-    right: -300px; /* 初始隐藏在右侧 */
+    right: -300px;
     width: 300px;
     height: 100%;
     background: white;
@@ -124,49 +228,61 @@ tr:hover {
     transition: right 0.3s ease-in-out;
     z-index: 1000;
 }
+
 .filter-sidebar.active {
-    right: 0; /* 显示时滑入 */
+    right: 0;
 }
+
 .filter-sidebar h2 {
     font-size: 20px;
     margin-bottom: 20px;
 }
+
 .filter-sidebar label {
     display: block;
     margin: 10px 0 5px;
 }
+
 .filter-sidebar input, .filter-sidebar select {
     width: 100%;
     box-sizing: border-box;
 }
+
 .filter-buttons {
     margin-top: 20px;
 }
+
 .filter-buttons button {
     width: 100%;
     margin: 5px 0;
 }
+
 .filter-buttons button:nth-child(2) {
-    background-color: #6c757d; /* 重置按钮颜色 */
+    background-color: #6c757d;
 }
+
 .filter-buttons button:nth-child(2):hover {
     background-color: #5a6268;
 }
+
 .filter-buttons button:nth-child(3) {
-    background-color: #ffc107; /* 关闭按钮颜色 */
+    background-color: #ffc107;
 }
+
 .filter-buttons button:nth-child(3):hover {
     background-color: #e0a800;
 }
-button.download-pdf {
-    background-color: #17a2b8;
-}
-button.download-pdf:hover {
-    background-color: #138496;
-}
 
-/* Responsive adjustments */
 @media (max-width: 600px) {
+    .employee-select {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .input-group, .button-group {
+        width: 100%;
+        justify-content: flex-start;
+    }
     select, button, input[type="date"] {
         width: 100%;
         margin: 5px 0;
@@ -188,11 +304,20 @@ button.download-pdf:hover {
     .employee-photo-container p {
         font-size: 12px;
     }
+    .dropdown-content {
+        min-width: 150px;
+    }
+    .dropdown-content a {
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+    .menu-dropdown {
+        position: static;
+    }
 }
 
-/* Print-specific styles */
 @media print {
-    .container, .filter-sidebar, .employee-select, .employee-photo-container {
+    .container, .filter-sidebar, .employee-select, .employee-photo-container, .menu-dropdown {
         display: none !important;
     }
     body {
