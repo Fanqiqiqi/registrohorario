@@ -32,10 +32,11 @@ button {
     border: none;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 button:hover {
     opacity: 0.9;
+    transform: translateY(-2px);
 }
 .employee-form button {
     background-color: #28a745;
@@ -50,9 +51,10 @@ table {
     margin-top: 20px;
 }
 th, td {
-    padding: 12px;
+    padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    font-size: 14px;
 }
 th {
     background-color: #007bff;
@@ -62,12 +64,29 @@ th {
 tr:hover {
     background-color: #f5f5f5;
 }
+.action-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    margin: 0 6px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+.edit-btn {
+    color: #007bff;
+}
+.edit-btn:hover {
+    color: #0056b3;
+    transform: scale(1.1);
+}
 .remove-btn {
-    background-color: #dc3545;
-    color: white;
+    color: #dc3545;
 }
 .remove-btn:hover {
-    background-color: #c82333;
+    color: #c82333;
+    transform: scale(1.1);
 }
 .modal {
     display: none;
@@ -180,5 +199,14 @@ input[type="text"], input[type="number"], input[type="file"] {
     button, input[type="text"], input[type="number"], input[type="file"] {
         width: 100%;
         margin: 8px 0;
+    }
+    .action-btn {
+        font-size: 14px;
+        padding: 4px;
+        margin: 0 4px;
+    }
+    th, td {
+        font-size: 12px;
+        padding: 8px;
     }
 }
